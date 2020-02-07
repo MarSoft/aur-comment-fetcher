@@ -33,17 +33,17 @@ def query(name):
         raise click.ClickException('couldn\'t find any package with name "{0}"'
                         .format(name))
 
-def get(package):
-    res = requests.get(BASE_URL+package+'/?comments=all',verify=True)
+def get(package, count=100000):
+    res = requests.get(BASE_URL+package+'/?comments=all&PP='+str(count),verify=True)
     if res.status_code != 200:
-        res = requests.get(BASE_URL+query(package)+'/?comments=all',verify=True)
+        res = requests.get(BASE_URL+query(package)+'/?comments=all&PP='+str(count),verify=True)
         if res.status_code != 200:
             raise click.ClickException('couldn\'t fetch comments for package "{0}"'
                             .format(package))
     return res
 
 def fetch_comments(package,number=5,get_all=False):
-    res = get(package)
+    res = get(package, 100000 if get_all else number)
     soup = BeautifulSoup(res.content, 'lxml')
     # find only next element 
     current = soup.find('div',attrs={'class':'comments'}) 
